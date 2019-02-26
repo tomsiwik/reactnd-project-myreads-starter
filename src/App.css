@@ -169,12 +169,32 @@ button:active {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #60ac5d;
+  filter: invert(98%);
+  background: #000;
   background-image: url('./icons/arrow-drop-down.svg');
   background-repeat: no-repeat;
   background-position: center;
   background-size: 20px;
+  box-shadow: 0 3px 6px rgba(255,255,255,0.16), 0 3px 6px rgba(255,255,255,0.23);
+}
+
+.book-shelf-changer.currently-reading, 
+.book-shelf-changer.want-to-read,
+.book-shelf-changer.read{
+  filter: invert(0);
   box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.book-shelf-changer.currently-reading {
+  background-color: #1ab2e9;
+}
+
+.book-shelf-changer.want-to-read {
+  background-color: #00c2a5;
+}
+
+.book-shelf-changer.read {
+  background-color: #2e7c31;
 }
 
 .book-shelf-changer select {

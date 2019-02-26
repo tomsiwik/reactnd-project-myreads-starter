@@ -9,6 +9,9 @@ export class Book extends Component {
     cover: ""
   }
 
+  /**
+   * Handles thumbnail sizes
+   */
   componentDidMount(){
     const { book: { imageLinks: { thumbnail } } } = this.props;
 
@@ -24,16 +27,26 @@ export class Book extends Component {
     }
   }
 
+  /**
+   * Switching shelves book in fact needs to know
+   * which book was switch. This component already
+   * know into which shelf should be switched.
+   */
+  handleMoveShelf = (shelf) => {
+    const { onMoveShelf, book } = this.props;
+    onMoveShelf(book, shelf);
+  }
+
   render() {
     const { ...props } = this.props;
     const { width, height, cover } = this.state;
-    const { title, authors} = props.book;
+    const { title, authors = []} = props.book;
 
     return (
       <div className="book">
         <div className="book-top">
           <div className="book-cover" style={{ width, height, maxHeight: 200, backgroundImage: `url("${cover}")` }}></div>
-          <ShelfOptions {...props} />
+          <ShelfOptions {...props} onMoveShelf={this.handleMoveShelf} />
         </div>
         <div className="book-title">{title}</div>
         <div className="book-authors">{authors.join(" and ")}</div>

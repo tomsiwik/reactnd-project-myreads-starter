@@ -3,70 +3,53 @@ import "./App.css";
 import React from "react";
 import { Route } from "react-router-dom";
 
-import Books from "./Books";
+import BookCase from "./BookCase";
 import Search from "./Search";
 import * as BooksAPI from "./utils/BooksAPI";
 
 class BooksApp extends React.Component {
   state = {
-    shelves: [
-      ["currentlyReading", "Currently Reading"],
-      ["wantToRead", "Want to Read"],
-      ["read", "Read"]
-    ],
-    books : []
-  }
-
-  addBook = (book) => {
-    this.setState(({ books })=>{ 
-      const bookIdx = books.findIndex(oldbook => oldbook.id === book.id);
-
-      if(bookIdx === -1){
-        return { 
-          books: [
-            ...books,
-            book
-          ]
-        }
+    shelves: {
+      currentlyReading: {
+        id: "currentlyReading",
+        title: "Currently Reading",
+        books: []
+      },
+      wantToRead: {
+        id: "wantToRead",
+        title: "Want to Read",
+        books: []
+      },
+      read: {
+        id: "read",
+        title: "Read",
+        books: []
       }
-      
-      return null
-    })
-  }
-
-  removeBook = (book) => {
-    this.setState(({ books })=>{ 
-      const bookIdx = books.findIndex(oldbook => oldbook.id === book.id);
-
-      return { books: [
-        ...books.slice(0, bookIdx),
-        ...books.slice(bookIdx + 1)
-      ]}
-    })
-  }
-
-  updateBook = (book, shelf) => {
-    this.setState(({ books })=>{ 
-      const bookIdx = books.findIndex(oldbook => oldbook.id === book.id);
-
-      return { books: [
-        ...books.slice(0, bookIdx),
-        { ...book, shelf },
-        ...books.slice(bookIdx + 1)
-      ]}
-    })
-  }
+    },
+    books: []
+  };
 
   handleMoveShelf = (book, shelf) => {
-    BooksAPI.update(book, shelf).then((bookMap) => {
-      // TODO: evaluate bookMap, is this needed? Should I reconsider
-      // mapping all books into a map similar to bookMap ?
-      shelf === "none" ? this.deleteBook(book) : this.updateBook(book, shelf) ;
-    })
-  }
+    BooksAPI.update(book, shelf).then(shelves => {
+      this.setState(({ shelves: currentShelves }) => ({
+        shelves: Object.entries(shelves).reduce((acc, [shelf, books]) => {
+          acc[shelf].books = books;
+          return acc;
+        }, currentShelves)
+      }));
+    });
+  };
 
-  componentDidMount(){
-    BooksAPI.getAll().then(books => this.setState({books}));
+  componentDidMount() {
+    BooksAPI.getAll().then(books => {
+      this.setState(({ shelves }) => ({
+        books,
+        shelves: books.reduce((acc, book) => {
+          acc[book.shelf].books.push(book.id);
+          return acc;
+        }, shelves)
+      }));
+    });
   }
 
   render() {
@@ -74,13 +57,31 @@ class BooksApp extends React.Component {
 
     return (
       <div className="app">
-        <Route exact path="/" render={() =>
-          <Books books={books} shelves={shelves} onMoveShelf={this.handleMoveShelf} />
-        }/>
-        <Route path="/search" component={Search}/>
+        <Route
+          exact
+          path="/"
+          render={() => (
+            <BookCase
+              books={books}
+              shelves={shelves}
+              onMoveShelf={this.handleMoveShelf}
+            />
+          )}
+        />
+        <Route
+          exact
+          path="/search"
+          render={() => (
+            <Search
+              books={books}
+              shelves={shelves}
+              onMoveShelf={this.handleMoveShelf}
+            />
+          )}
+        />
       </div>
-    )
+    );
   }
 }
 
-export default BooksApp
+export default BooksApp;
