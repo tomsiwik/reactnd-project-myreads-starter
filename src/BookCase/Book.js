@@ -27,7 +27,8 @@ export class Book extends Component {
   componentDidMount(){
     const { book: { imageLinks: image} } = this.props;
 
-    this.handleThumbnail(image);    
+    if(image)
+      this.handleThumbnail(image);    
   }
 
   componentDidUpdate(prevProps){
