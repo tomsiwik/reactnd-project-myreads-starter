@@ -9,11 +9,8 @@ export class Book extends Component {
     cover: ""
   }
 
-  /**
-   * Handles thumbnail sizes
-   */
-  componentDidMount(){
-    const { book: { imageLinks: { thumbnail } } } = this.props;
+  handleThumbnail = (image) => {
+    const { thumbnail } = image;
 
     const img = new Image();
     img.src = thumbnail;
@@ -27,26 +24,35 @@ export class Book extends Component {
     }
   }
 
-  /**
-   * Switching shelves book in fact needs to know
-   * which book was switch. This component already
-   * know into which shelf should be switched.
-   */
+  componentDidMount(){
+    const { book: { imageLinks: image} } = this.props;
+
+    this.handleThumbnail(image);    
+  }
+
+  componentDidUpdate(prevProps){
+    const { book: { imageLinks: prevImage } } = prevProps;
+    const { book: { imageLinks: currentImage } } = this.props;
+
+    if(prevImage.thumbnail !== currentImage.thumbnail)
+      this.handleThumbnail(currentImage);
+  }
+
   handleMoveShelf = (shelf) => {
     const { onMoveShelf, book } = this.props;
     onMoveShelf(book, shelf);
   }
 
   render() {
-    const { ...props } = this.props;
+    const { book, ...props } = this.props;
     const { width, height, cover } = this.state;
-    const { title, authors = []} = props.book;
+    const { title, authors = [], shelf} = book;
 
     return (
       <div className="book">
         <div className="book-top">
           <div className="book-cover" style={{ width, height, maxHeight: 200, backgroundImage: `url("${cover}")` }}></div>
-          <ShelfOptions {...props} onMoveShelf={this.handleMoveShelf} />
+          <ShelfOptions {...props} shelf={shelf} onMoveShelf={this.handleMoveShelf} />
         </div>
         <div className="book-title">{title}</div>
         <div className="book-authors">{authors.join(" and ")}</div>

@@ -1,22 +1,16 @@
-import React, { Component } from "react";
+import React from "react";
 
 import { Books } from ".";
 
-export class Shelf extends Component {
-  render() {
-    const { shelf, books } = this.props;
+export const Shelf = ({ shelf, shelfName, books, ...props }) => {
+  const booksInShelf = Object.values(books).filter(book => shelf.includes(book.id));
 
-    const shelvedBooks = books.filter(book => shelf.books.includes(book.id));
-    
-    return (
-      <div className="bookshelf">
-        <h2 className="bookshelf-title">{ shelf.title }</h2>
-        <div className="bookshelf-books">
-          <Books {...this.props} books={shelvedBooks} />
-        </div>
+  return (
+    <div className="bookshelf">
+      <h2 className="bookshelf-title">{ shelfName }</h2>
+      <div className="bookshelf-books">
+        <Books {...props} books={booksInShelf} />
       </div>
-    )
-  }
+    </div>
+  )
 }
-
-export default Shelf

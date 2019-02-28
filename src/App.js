@@ -9,52 +9,77 @@ import * as BooksAPI from "./utils/BooksAPI";
 
 class BooksApp extends React.Component {
   state = {
-    shelves: {
-      currentlyReading: {
-        id: "currentlyReading",
-        title: "Currently Reading",
-        books: []
-      },
-      wantToRead: {
-        id: "wantToRead",
-        title: "Want to Read",
-        books: []
-      },
-      read: {
-        id: "read",
-        title: "Read",
-        books: []
-      }
+    shelfNames: {
+      currentlyReading: "Currently Reading",
+      wantToRead: "Want to Read",
+      read: "Read"
     },
-    books: []
+    shelves: {
+      currentlyReading: [],
+      wantToRead: [],
+      read: []
+    },
+    books: {
+      // None
+    }
   };
 
   handleMoveShelf = (book, shelf) => {
+    const { books } = this.state;
+
     BooksAPI.update(book, shelf).then(shelves => {
-      this.setState(({ shelves: currentShelves }) => ({
-        shelves: Object.entries(shelves).reduce((acc, [shelf, books]) => {
-          acc[shelf].books = books;
-          return acc;
-        }, currentShelves)
-      }));
-    });
-  };
+      if(!Object.keys(books).includes(book.id)){
+        // Get NEW book data, especially shelf
+        BooksAPI.get(book.id).then(book => {
+          console.log("Fetch book", book)
+
+          this.setState({
+            shelves,
+            books: {
+              ...books,
+              [book.id]: book
+            }
+          });
+        })
+      }else{
+        // Just move existing book
+        this.setState({
+          shelves,
+          books: {
+            ...books,
+            [book.id]: {
+              ...books[book.id],
+              shelf
+            }
+          }
+        });
+      }
+    })
+  }
 
   componentDidMount() {
-    BooksAPI.getAll().then(books => {
-      this.setState(({ shelves }) => ({
+    BooksAPI.getAll().then(currentBooks => {
+      const books = currentBooks.reduce((acc, book) => {
+        acc[book.id] = book;
+        return acc;
+      }, {});
+
+      const shelves = currentBooks.reduce((acc, book) => {
+        const shelf = acc[book.shelf];
+        acc[book.shelf] = shelf ? [...shelf, book.id] : [ book.id ]
+        return acc;
+      }, {});
+
+      this.setState({
         books,
-        shelves: books.reduce((acc, book) => {
-          acc[book.shelf].books.push(book.id);
-          return acc;
-        }, shelves)
-      }));
+        shelves
+      });
     });
   }
 
   render() {
-    const { books, shelves } = this.state;
-
+    const { books, shelves, shelfNames } = this.state;
+    
     return (
       <div className="app">
         <Route
@@ -64,6 +89,7 @@ class BooksApp extends React.Component {
             <BookCase
               books={books}
               shelves={shelves}
+              shelfNames={shelfNames}
               onMoveShelf={this.handleMoveShelf}
             />
           )}
@@ -75,6 +101,7 @@ class BooksApp extends React.Component {
             <Search
               books={books}
               shelves={shelves}
+              shelfNames={shelfNames}
               onMoveShelf={this.handleMoveShelf}
             />
           )}

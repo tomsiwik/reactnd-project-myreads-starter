@@ -15,39 +15,45 @@ export default class Search extends Component {
   handleSearch = (event) => {
     const query = event.target.value.toLowerCase();
 
-      const { cache } = this.state;
-      const now = Date.now();
-      const cacheExpiry = cache[query] ? cache[query].expires : 0;
+    if(!SEARCH_TERMS.includes(query))
+      return this.setState({ query });
 
-      if(now > cacheExpiry && SEARCH_TERMS.includes(query)){
-        BooksAPI.search(query).then(results => {
-          this.setState({
-            query,
-            cache : {
-              ...cache,
-              [query]: {
-                expires: now + 360000,
-                data: results
-              }
+    const { cache } = this.state;
+    const now = Date.now();
+    const cacheExpiry = cache[query] ? cache[query].expires : 0;
+
+    if(now > cacheExpiry){
+      BooksAPI.search(query).then(results => {
+        this.setState({
+          query,
+          cache : {
+            ...cache,
+            [query]: {
+              expires: now + 60 * 1000, //expires after 1min
+              data: results
             }
-          })
+          }
         })
-      }else{
-        this.setState({ query })
-      }
+      })
+    }
   }
 
   render() {
+    const { books, ...props } = this.props;
     const { query, cache } = this.state;
-    const { books, ...props } =this.props;
-    const { [query]: booksQuery } = cache;
+    const { [query]: booksQuery = { data: [] } } = cache;
     
-    const shelf = { id: "none", title: "None", books: []};
+    const mergedBooks = booksQuery.data.map(book => 
+      ({ 
+        ...book, 
+        shelf: books[book.id] ? books[book.id].shelf : "none" 
+      })
+    );
 
     return (
       <div className="search-books">
         <div className="search-books-bar">
-          <Link to="/" className="close-search">
+          <Link to="/" replace className="close-search">
             Close
           </Link>
           <div className="search-books-input-wrapper">
@@ -55,9 +61,9 @@ export default class Search extends Component {
           </div>
         </div>
         <div className="search-books-results">
-          <ol className="books-grid" />
-          { booksQuery && booksQuery.data && 
-            <Books {...props} books={booksQuery.data} shelf={shelf} /> }
+          <ol className="books-grid">
+            <Books {...props} books={mergedBooks} />
+          </ol>
         </div>
       </div>
     );

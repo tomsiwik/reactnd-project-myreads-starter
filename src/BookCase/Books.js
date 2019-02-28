@@ -6,10 +6,10 @@ export const Books = ({ books, ...props }) => {
   return (
     <ol className="books-grid">
         { 
-          books.map( book => 
+          Object.entries(books).map( ([id, book]) => 
             (
-              <li key={book.id} >
-                <Book {...props} book={book} books={books} />
+              <li key={id} >
+                <Book {...props} book={book} />
               </li>
             )
           ) 
