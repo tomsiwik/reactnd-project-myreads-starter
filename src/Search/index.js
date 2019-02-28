@@ -8,39 +8,41 @@ const SEARCH_TERMS = ['Android', 'Art', 'Artificial Intelligence', 'Astronomy', 
 
 export default class Search extends Component {
   state = {
+    search: "",
     query: "",
     cache: {}
   }
 
   handleSearch = (event) => {
-    const query = event.target.value.toLowerCase();
-
-    if(!SEARCH_TERMS.includes(query))
-      return this.setState({ query });
+    const search = event.target.value;
+    const query = search.toLowerCase();
 
     const { cache } = this.state;
     const now = Date.now();
     const cacheExpiry = cache[query] ? cache[query].expires : 0;
 
-    if(now > cacheExpiry){
+    if(now > cacheExpiry && SEARCH_TERMS.includes(query)){
       BooksAPI.search(query).then(results => {
         this.setState({
+          search,
           query,
           cache : {
             ...cache,
             [query]: {
-              expires: now + 60 * 1000, //expires after 1min
+              expires: now + 1, //expires after 1min
               data: results
             }
           }
         })
       })
+    }else{
+      this.setState({ search, query });
     }
   }
 
   render() {
     const { books, ...props } = this.props;
-    const { query, cache } = this.state;
+    const { search, query, cache } = this.state;
     const { [query]: booksQuery = { data: [] } } = cache;
     
     const mergedBooks = booksQuery.data.map(book => 
@@ -57,7 +59,7 @@ export default class Search extends Component {
             Close
           </Link>
           <div className="search-books-input-wrapper">
-            <input onChange={this.handleSearch} type="text" placeholder="Search by title or author" value={query} />
+            <input onChange={this.handleSearch} type="text" placeholder="Search by title or author" value={search} />
           </div>
         </div>
         <div className="search-books-results">

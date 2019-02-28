@@ -29,10 +29,7 @@ class BooksApp extends React.Component {
 
     BooksAPI.update(book, shelf).then(shelves => {
       if(!Object.keys(books).includes(book.id)){
-        // Get NEW book data, especially shelf
         BooksAPI.get(book.id).then(book => {
-          console.log("Fetch book", book)
-
           this.setState({
             shelves,
             books: {
@@ -42,7 +39,6 @@ class BooksApp extends React.Component {
           });
         })
       }else{
-        // Just move existing book
         this.setState({
           shelves,
           books: {
