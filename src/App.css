@@ -122,6 +122,17 @@ button:active {
   padding: 80px 10px 20px;
 }
 
+.search-books-results .books-empty{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.books-loading {
+  height: 20px;
+  line-height: 13px;
+}
+
 /* books grid */
 
 .books-grid {
@@ -216,3 +227,4 @@ button:active {
   text-align: center;
   font-size: 0.8em;
 }
+

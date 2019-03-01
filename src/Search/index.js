@@ -4,48 +4,78 @@ import { Link } from "react-router-dom";
 import { Books } from "../BookCase";
 import * as BooksAPI from "../utils/BooksAPI";
 
-const SEARCH_TERMS = ['Android', 'Art', 'Artificial Intelligence', 'Astronomy', 'Austen', 'Baseball', 'Basketball', 'Bhagat', 'Biography', 'Brief', 'Business', 'Camus', 'Cervantes', 'Christie', 'Classics', 'Comics', 'Cook', 'Cricket', 'Cycling', 'Desai', 'Design', 'Development', 'Digital Marketing', 'Drama', 'Drawing', 'Dumas', 'Education', 'Everything', 'Fantasy', 'Film', 'Finance', 'First', 'Fitness', 'Football', 'Future', 'Games', 'Gandhi', 'Homer', 'Horror', 'Hugo', 'Ibsen', 'Journey', 'Kafka', 'King', 'Lahiri', 'Larsson', 'Learn', 'Literary Fiction', 'Make', 'Manage', 'Marquez', 'Money', 'Mystery', 'Negotiate', 'Painting', 'Philosophy', 'Photography', 'Poetry', 'Production', 'Programming', 'React', 'Redux', 'River', 'Robotics', 'Rowling', 'Satire', 'Science Fiction', 'Shakespeare', 'Singh', 'Swimming', 'Tale', 'Thrun', 'Time', 'Tolstoy', 'Travel', 'Ultimate', 'Virtual Reality', 'Web Development', 'iOS'].map(term => term.toLowerCase())
+const debounce = (fn, delay) => {
+  let timer;
+  return function (...args) {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn(...args);
+      timer = null;
+    }, delay);
+  }
+}
 
 export default class Search extends Component {
   state = {
-    search: "",
     query: "",
-    cache: {}
+    results: {
+      error: "Please type into the search bar. Results empty.",
+      items: []
+    },
+    loading: false
   }
 
-  handleSearch = (event) => {
-    const search = event.target.value;
+  handleChange = (event) => {
+    this.handleSearch(event.target.value);
+  }
+
+  handleSearch = debounce((search) => {
     const query = search.toLowerCase();
 
-    const { cache } = this.state;
-    const now = Date.now();
-    const cacheExpiry = cache[query] ? cache[query].expires : 0;
+    if(query.trim() !== ""){
+      this.setState(({results}) => ({
+        loading: true,
+        results: {
+          ...results,
+          error: null
+        }
+      }))
 
-    if(now > cacheExpiry && SEARCH_TERMS.includes(query)){
-      BooksAPI.search(query).then(results => {
+      BooksAPI.search(query).then(response => {
+        const results = response.error ? {
+          ...response,
+          // TODO: Please add a nicer error message in API, 
+          // Remove below line if API-centric message handling needed
+          error: `No Results for query: "${search}"`
+        } : {
+          error: null,
+          items: response
+        }
+
         this.setState({
-          search,
           query,
-          cache : {
-            ...cache,
-            [query]: {
-              expires: now + 1, //expires after 1min
-              data: results
-            }
-          }
+          results,
+          loading: false
         })
       })
     }else{
-      this.setState({ search, query });
+      this.setState({
+        query,
+        results: {
+          error: "Please type into the search bar. Results empty.",
+          items: []
+        }
+      })
     }
-  }
+  }, 500)
 
   render() {
     const { books, ...props } = this.props;
-    const { search, query, cache } = this.state;
-    const { [query]: booksQuery = { data: [] } } = cache;
-    
-    const mergedBooks = booksQuery.data.map(book => 
+    const { results: { error, items }, loading } = this.state;
+
+    const mergedBooks = items.map(book => 
       ({ 
         ...book, 
         shelf: books[book.id] ? books[book.id].shelf : "none" 
@@ -59,13 +89,20 @@ export default class Search extends Component {
             Close
           </Link>
           <div className="search-books-input-wrapper">
-            <input onChange={this.handleSearch} type="text" placeholder="Search by title or author" value={search} />
+            <input onChange={this.handleChange} type="text" placeholder="Search by title or author" />
           </div>
+          {
+          loading && <div className="books-loading"><h4>Loading...</h4></div>
+          }
         </div>
         <div className="search-books-results">
           <ol className="books-grid">
             <Books {...props} books={mergedBooks} />
           </ol>
+          { 
+            error && <div className="books-empty"><h4>{ error }</h4></div>
+          }
+          
         </div>
       </div>
     );

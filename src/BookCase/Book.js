@@ -10,7 +10,8 @@ export class Book extends Component {
   }
 
   handleThumbnail = (image) => {
-    const { thumbnail } = image;
+    const transparentPixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+    const { thumbnail = transparentPixel } = image;
 
     const img = new Image();
     img.src = thumbnail;
@@ -25,17 +26,18 @@ export class Book extends Component {
   }
 
   componentDidMount(){
-    const { book: { imageLinks: image} } = this.props;
+    const { book: { imageLinks: image } } = this.props;
 
-    if(image)
-      this.handleThumbnail(image);    
+    // FEAT: Default image = transparent pixel (can be made nicer, i know :) )
+    this.handleThumbnail(image || {});
   }
 
   componentDidUpdate(prevProps){
     const { book: { imageLinks: prevImage } } = prevProps;
     const { book: { imageLinks: currentImage } } = this.props;
 
-    if(prevImage.thumbnail !== currentImage.thumbnail)
+    // FIXED: Was able to reproduce, this check "should" handle undefined
+    if(prevImage && currentImage && prevImage.thumbnail !== currentImage.thumbnail)
       this.handleThumbnail(currentImage);
   }
 

@@ -29,15 +29,24 @@ class BooksApp extends React.Component {
 
     BooksAPI.update(book, shelf).then(shelves => {
       if(!Object.keys(books).includes(book.id)){
-        BooksAPI.get(book.id).then(book => {
-          this.setState({
-            shelves,
-            books: {
-              ...books,
-              [book.id]: book
+        // Suggestion: removed BooksAPI.get(book.id).then(book => {}) 
+        // for better performance
+        this.setState({
+          shelves: {
+            ...shelves,
+            [shelf]: [
+              ...shelves[shelf],
+              book.id
+            ]
+          },
+          books: {
+            ...books,
+            [book.id]: {
+              ...book,
+              shelf
             }
-          });
-        })
+          }
+        });
       }else{
         this.setState({
           shelves,

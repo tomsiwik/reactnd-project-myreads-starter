@@ -1,15 +1,37 @@
-# MyReads by Tom
+# MyReads
+> Save your favorite books to read, show what you have read and what you are interested in reading.
 
-This is a fully implemented MyReads SPA reviewed with the rubrics requirements: https://review.udacity.com/#!/rubrics/918/view
+This app was build for the React Nanodegree Program of Udacity.
 
-## TL;DR
+![](https://drive.google.com/uc?export=view&id=12A_wtMPcfNeuicnI5RXm2OfDFFyfdQGU)
 
-* install all project dependencies with `npm install`
-* start the development server with `npm start`
+## Installation
 
-## Note
+```sh
+npm install
+```
 
-This implementation uses the undocumented BooksAPI `.get(...)` method to fetch a single book. 
-Rather than fetching all books when adding a book from the search result through shelf selection,
-only this single book (if not present within the client's dataset) is fetched via API.
-Furthermore, a caching mechanism for search results and thumbnail size handling is included.
+## Usage example
+
+You can run this SPA in a local server with hotreloading build in. This can be used for development purposes as well.
+
+```sh
+npm start
+```
+
+## Development setup
+
+See above. If you want a single build and bundle everything into a shippable website you can use:
+
+```sh
+npm build
+```
+
+## Change History
+
+* chore: removed debugging statements [view commit](http://github.com///commit/c5caba85e4dda872cd2ee6adcf83594c67a37a2c)
+* fix: thumbnail check added when no image available [view commit](http://github.com///commit/0d53ab7e9231ddf82732f7a4014cc4e39c73539a)
+* docs(changed readme so explain project): [view commit](http://github.com///commit/652c1757eb07256e4ec3d47a261d5b03fc474186)
+* refactor(Changed datastructure for easier handling, better lifecycle handling): [view commit](http://github.com///commit/d834c4f8438b5383c5ecf0b99be20dc1556a570c)
+* refactor: Refactored to simplify shelf handling [view commit](http://github.com///commit/1285f45645e088d3ee3a7ba0952f4b6ce1fd8b56)
+* refactor(shelves): Implemented shelves logics, moving, removing, API & thumbnail logic [view commit](http://github.com///commit/e3a9707cc121acf9feceb6b23a49d7970f729865)
