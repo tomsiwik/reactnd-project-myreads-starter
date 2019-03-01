@@ -29,6 +29,8 @@ npm build
 
 ## Change History
 
+* docs: added inline doc why the change was made [view commit](http://github.com///commit/dc199ee7b7d45d414df1c0382c6473d0ddcb75d1)
+* refactor(suggestions): refactored app for udacity's review suggestions and fixed issues [view commit](http://github.com///commit/fecd593774c4b4868eb5285f33af71d8cd6b1274)
 * chore: removed debugging statements [view commit](http://github.com///commit/c5caba85e4dda872cd2ee6adcf83594c67a37a2c)
 * fix: thumbnail check added when no image available [view commit](http://github.com///commit/0d53ab7e9231ddf82732f7a4014cc4e39c73539a)
 * docs(changed readme so explain project): [view commit](http://github.com///commit/652c1757eb07256e4ec3d47a261d5b03fc474186)
