@@ -14,6 +14,10 @@ class BooksApp extends React.Component {
       wantToRead: "Want to Read",
       read: "Read"
     },
+    // Could not follow suggestion, shelves is needed in Search results.
+    // A search component in my case is NOT a shelf, thats why I cant reuse
+    // this state variable inside shelf. But yes, suggestion valid when I
+    // reuse shelf for a search component. I am reusing Books here.
     shelves: {
       currentlyReading: [],
       wantToRead: [],
@@ -29,7 +33,7 @@ class BooksApp extends React.Component {
 
     BooksAPI.update(book, shelf).then(shelves => {
       if(!Object.keys(books).includes(book.id)){
-        // Suggestion: removed BooksAPI.get(book.id).then(book => {}) 
+        // PERF: removed BooksAPI.get(book.id).then(book => {}) 
         // for better performance
         this.setState({
           shelves: {
